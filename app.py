@@ -89,9 +89,11 @@ st.markdown("<h1 class='main-header'>🎯 HỆ THỐNG ĐẾM VẬT THỂ</h1>",
 with st.sidebar:
     # Logo
     st.markdown("""
-        <div class='logo-container'>
-            <h1 style='color: white; margin: 0; font-size: 3rem;'>🎯</h1>
-            <p style='color: white; margin: 0.5rem 0 0 0; font-size: 1.2rem;'>NHÓM 2 _ XỬ LÍ THỊ GIÁC</p>
+        <div style="text-align: center; padding: 20px 0; background-color: #0e1a2f; border-radius: 15px; margin-bottom: 20px;">
+            <img src="https://tools1s.com/images/dkmh/vaa-logo.png" width="140">
+            <p style="color: white; margin: 15px 0 0 0; font-size: 1.35rem; font-weight: bold; letter-spacing: 1px;">
+                NHÓM 2 _ XỬ LÍ THỊ GIÁC
+            </p>
         </div>
     """, unsafe_allow_html=True)
     
