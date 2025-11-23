@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2
 
 # Load model (chỉ load 1 lần)
-model = YOLO("models/best.pt")
+model = YOLO("model_path")
 
 def detect_image(image, conf=0.25, iou=0.45):
     """
