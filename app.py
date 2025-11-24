@@ -125,7 +125,7 @@ with st.sidebar:
     
     option = st.selectbox(
         "Chọn chức năng:",
-        ["🖼️ Phát hiện từ ảnh", "🎥 Phát hiện từ video", "📈 Visualize Training Results", "🧪 Test & Validation Results"],
+        ["🖼️ Đếm từ ảnh", "🎥 Đếm từ video", "📈 Visualize Training Results", "🧪 Test & Validation Results"],
         label_visibility="collapsed"
     )
     
@@ -146,10 +146,10 @@ with st.sidebar:
     with st.expander("📖 Hướng dẫn", expanded=False):
         st.markdown("""
         <div style='color: white;'>
-        <b>🖼️ Phát hiện từ ảnh:</b><br>
-        Upload ảnh để phát hiện xe cộ<br><br>
-        <b>🎥 Phát hiện từ video:</b><br>
-        Upload video để phát hiện và đếm xe<br><br>
+        <b>🖼️ Đếm từ ảnh:</b><br>
+        Upload ảnh để Đếm xe cộ<br><br>
+        <b>🎥 Đếm từ video:</b><br>
+        Upload video để Đếm và đếm xe<br><br>
         <b>📈 Visualize:</b><br>
         Xem kết quả training model
         </div>
@@ -158,8 +158,8 @@ with st.sidebar:
 # -------------------------
 # ẢNH
 # -------------------------
-if option == "🖼️ Phát hiện từ ảnh":
-    st.header("📷 Phát hiện xe cộ từ ảnh")
+if option == "🖼️ Đếm từ ảnh":
+    st.header("📷 Đếm xe cộ từ ảnh")
     
     if model_path is None or not os.path.exists(model_path):
         st.error("❌ Vui lòng chọn model hợp lệ từ sidebar")
@@ -176,7 +176,7 @@ if option == "🖼️ Phát hiện từ ảnh":
         st.error(f"❌ Lỗi load model: {str(e)}")
         st.stop()
     
-    with st.expander("⚙️ Cài đặt phát hiện", expanded=True):
+    with st.expander("⚙️ Cài đặt Đếm", expanded=True):
         col1, col2 = st.columns(2)
         
         with col1:
@@ -226,7 +226,7 @@ if option == "🖼️ Phát hiện từ ảnh":
                     st.markdown("**Ảnh gốc**")
                     st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), use_container_width=True)
                 
-                with st.spinner("🔍 Đang phát hiện..."):
+                with st.spinner("🔍 Đang Đếm..."):
                     results = model(img, conf=confidence_threshold, iou=iou_threshold)[0]
                     annotated = results.plot()
                     
@@ -241,7 +241,7 @@ if option == "🖼️ Phát hiện từ ảnh":
                     st.image(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB), use_container_width=True)
                 
                 if class_count:
-                    st.success("✅ Phát hiện thành công!")
+                    st.success("✅ Đếm thành công!")
                     with st.expander("📊 Thống kê", expanded=True):
                         cols = st.columns(len(class_count))
                         for idx, (name, count) in enumerate(class_count.items()):
@@ -249,7 +249,7 @@ if option == "🖼️ Phát hiện từ ảnh":
                                 st.metric(str(name).capitalize(), count)
                         st.bar_chart(class_count)
                 else:
-                    st.warning("⚠️ Không phát hiện được xe")
+                    st.warning("⚠️ Không Đếm được xe")
                 
                 st.markdown("---")
                 
@@ -261,8 +261,8 @@ if option == "🖼️ Phát hiện từ ảnh":
 # -------------------------
 # VIDEO
 # -------------------------
-elif option == "🎥 Phát hiện từ video":
-    st.header("🎥 Phát hiện xe cộ từ video")
+elif option == "🎥 Đếm từ video":
+    st.header("🎥 Đếm xe cộ từ video")
     
     if model_path is None or not os.path.exists(model_path):
         st.error("❌ Vui lòng chọn model từ sidebar")
@@ -285,7 +285,7 @@ elif option == "🎥 Phát hiện từ video":
         save_output = st.checkbox("Lưu video", value=True)
         use_tracking = st.checkbox("Tracking", value=True, help="Đếm unique objects")
     
-    with st.expander("🎯 Ngưỡng phát hiện", expanded=True):
+    with st.expander("🎯 Ngưỡng Đếm", expanded=True):
         col1, col2 = st.columns(2)
         
         with col1:
@@ -354,7 +354,7 @@ elif option == "🎥 Phát hiện từ video":
                             df = pd.DataFrame(list(class_count.items()), columns=['Class', 'Count'])
                             st.bar_chart(df.set_index('Class'))
                 else:
-                    st.warning("⚠️ Không phát hiện được xe")
+                    st.warning("⚠️ Không đếm được xe")
                 
                 if os.path.exists(temp_input):
                     os.remove(temp_input)
