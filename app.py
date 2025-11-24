@@ -158,8 +158,8 @@ with st.sidebar:
 # -------------------------
 # ẢNH
 # -------------------------
-if option == "🖼️ Phát hiện từ ảnh":
-    st.header("📷 Phát hiện xe cộ từ ảnh")
+if option == "🖼️ Đếm từ ảnh":
+    st.header("📷 Đếm xe cộ từ ảnh")
     
     if model_path is None or not os.path.exists(model_path):
         st.error("❌ Vui lòng chọn model hợp lệ từ sidebar")
@@ -261,8 +261,8 @@ if option == "🖼️ Phát hiện từ ảnh":
 # -------------------------
 # VIDEO
 # -------------------------
-elif option == "🎥 Phát hiện từ video":
-    st.header("🎥 Phát hiện xe cộ từ video")
+elif option == "🎥 Đếm từ video":
+    st.header("🎥 Đếm xe cộ từ video")
     
     if model_path is None or not os.path.exists(model_path):
         st.error("❌ Vui lòng chọn model từ sidebar")
@@ -411,11 +411,39 @@ elif option == "📈 Visualize Training Results":
                     st.warning("⚠️ Không có confusion_matrix_normalized.png")
         
         with tab2:
+            st.header("Kết quả huấn luyện")
+
+            # 1. Ảnh
             results_img = os.path.join(results_path, "results.png")
             if os.path.exists(results_img):
-                st.image(results_img, caption="Training Results", use_container_width=True)
+                st.image(results_img, caption="Training Metrics", use_container_width=True)
             else:
-                st.warning("⚠️ Không có results.png")
+                st.info("Chưa có biểu đồ (results.png)")
+
+            # 2. Bảng CSV
+            results_csv = os.path.join(results_path, "results.csv")
+            if os.path.exists(results_csv):
+                st.subheader("Chi tiết số liệu từng epoch")
+                try:
+                    import pandas as pd
+                    df = pd.read_csv(results_csv)
+                    
+                    # Tùy chọn: làm tròn số, chọn cột quan trọng
+                    # df = df.round(4)
+                    
+                    st.dataframe(df, use_container_width=True, height=600)
+                    
+                    # Nút tải
+                    st.download_button(
+                        "Tải results.csv",
+                        data=df.to_csv(index=False).encode(),
+                        file_name="training_results.csv",
+                        mime="text/csv"
+                    )
+                except Exception as e:
+                    st.error(f"Không đọc được CSV: {e}")
+            else:
+                st.info("Chưa có file results.csv")
             
             st.markdown("---")
             col1, col2 = st.columns(2)
