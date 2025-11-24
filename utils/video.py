@@ -3,11 +3,13 @@ from ultralytics import YOLO
 import streamlit as st
 import os
 
-def process_video_with_preview(video_path, output_path="output.mp4", show_preview=True, conf=0.25, iou=0.45, model_path="models/best.pt", use_tracking=True):
+model = YOLO("model_path") 
+
+def process_video_with_preview(video_path, output_path="output.mp4", show_preview=True, conf=0.25, iou=0.45, use_tracking=True):
     """
     Xử lý video với tracking và preview
     """
-    model = YOLO(model_path)
+
     
     cap = cv2.VideoCapture(video_path)
     
@@ -154,11 +156,11 @@ def process_video_with_preview(video_path, output_path="output.mp4", show_previe
     return output_path, class_count
 
 
-def detect_video_realtime(video_path, conf=0.25, iou=0.45, model_path="models/best.pt", use_tracking=True):
+def detect_video_realtime(video_path, conf=0.25, iou=0.45, use_tracking=True):
     """
     Phát hiện video realtime - không lưu file
     """
-    model = YOLO(model_path)
+
     
     cap = cv2.VideoCapture(video_path)
     
