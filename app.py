@@ -176,7 +176,7 @@ if option == "🖼️ Đếm từ ảnh":
         st.error(f"❌ Lỗi load model: {str(e)}")
         st.stop()
     
-    with st.expander("⚙️ Cài đặt Đếm", expanded=True):
+    with st.expander("⚙️ Cài đặt thông số", expanded=True):
         col1, col2 = st.columns(2)
         
         with col1:
@@ -312,18 +312,14 @@ elif option == "🎥 Đếm từ video":
                 
                 if save_output:
                     output_path = f"output_{idx}_{upload.name}"
-                    output_path, class_count = process_video_with_preview(
-                        temp_input, output_path, show_preview,
-                        conf=confidence_threshold, iou=iou_threshold,
-                        model_path=model_path, use_tracking=use_tracking
-                    )
+                    output_path, class_count = process_video_with_preview(temp_input, output_path, show_preview,conf=confidence_threshold, iou=iou_threshold,model_path=model_path, use_tracking=use_tracking)
                 else:
                     class_count = detect_video_realtime(
-                        temp_input,
+                        temp_input, output_path,
                         conf=confidence_threshold, iou=iou_threshold,
                         model_path=model_path, use_tracking=use_tracking
                     )
-                    output_path = None
+
                 
                 st.success("✅ Hoàn thành!")
                 

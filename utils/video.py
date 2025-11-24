@@ -156,23 +156,30 @@ def process_video_with_preview(video_path, output_path="output.mp4", show_previe
     return output_path, class_count
 
 
-def detect_video_realtime(video_path, conf=0.25, iou=0.45, model_path="models/best.pt", use_tracking=True):
-    """
-    Phát hiện video realtime - không lưu file
-    """
+def detect_video_realtime(video_path, output_path="realtime_output.mp4",
+                          conf=0.25, iou=0.45, model_path="models/best.pt", use_tracking=True):
+
     model = YOLO(model_path)
-    
     cap = cv2.VideoCapture(video_path)
-    
+
+    w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    if fps <= 0 or fps > 120:
+        fps = 30
+
+    # Writer để lưu file
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
+
     unique_ids_tracking = {}
     max_count_no_tracking = {}
-    frame_count = 0
-    
+
     frame_placeholder = st.empty()
     stats_placeholder = st.empty()
-    
+    frame_count = 0
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    
+
     tracking_available = use_tracking
     if use_tracking:
         try:
@@ -182,63 +189,65 @@ def detect_video_realtime(video_path, conf=0.25, iou=0.45, model_path="models/be
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
         except:
             tracking_available = False
-    
+
     while True:
         ret, frame = cap.read()
         if not ret:
             break
-        
+
         frame_count += 1
-        
+
         try:
             if tracking_available:
                 results = model.track(frame, conf=conf, iou=iou, persist=True, tracker="bytetrack.yaml")[0]
             else:
                 results = model(frame, conf=conf, iou=iou)[0]
         except:
-            results = model(frame, conf=conf, iou=iou)[0]
             tracking_available = False
-        
+            results = model(frame, conf=conf, iou=iou)[0]
+
         annotated = results.plot()
-        
+
+        # GHI FILE
+        out.write(annotated)
+
+        # SHOW PREVIEW
+        annotated_rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
+        frame_placeholder.image(annotated_rgb, channels="RGB", use_container_width=True)
+
+        # COUNT
         if tracking_available and hasattr(results.boxes, 'id') and results.boxes.id is not None:
             track_ids = results.boxes.id.cpu().numpy().astype(int)
             classes = results.boxes.cls.cpu().numpy().astype(int)
-            
-            for track_id, cls_id in zip(track_ids, classes):
-                class_name = model.names[cls_id]
-                if class_name not in unique_ids_tracking:
-                    unique_ids_tracking[class_name] = set()
-                unique_ids_tracking[class_name].add(track_id)
-            
+
+            for tid, cid in zip(track_ids, classes):
+                name = model.names[cid]
+                if name not in unique_ids_tracking:
+                    unique_ids_tracking[name] = set()
+                unique_ids_tracking[name].add(tid)
+
             class_count = {k: len(v) for k, v in unique_ids_tracking.items()}
+
         else:
-            current_frame_count = {}
+            frame_counting = {}
             for box in results.boxes:
-                cls_id = int(box.cls.item())
-                class_name = model.names[cls_id]
-                current_frame_count[class_name] = current_frame_count.get(class_name, 0) + 1
-            
-            for class_name, count in current_frame_count.items():
-                if class_name not in max_count_no_tracking:
-                    max_count_no_tracking[class_name] = count
+                cid = int(box.cls.item())
+                name = model.names[cid]
+                frame_counting[name] = frame_counting.get(name, 0) + 1
+
+            for name, cnt in frame_counting.items():
+                if name not in max_count_no_tracking:
+                    max_count_no_tracking[name] = cnt
                 else:
-                    max_count_no_tracking[class_name] = max(max_count_no_tracking[class_name], count)
-            
+                    max_count_no_tracking[name] = max(max_count_no_tracking[name], cnt)
+
             class_count = max_count_no_tracking
-        
-        annotated_rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
-        frame_placeholder.image(annotated_rgb, channels="RGB", use_container_width=True)
-        
-        mode = "Unique" if tracking_available else "MAX"
-        stats_text = f"Frame: {frame_count}/{total_frames} | {mode}"
-        if class_count:
-            stats_text += " | " + ", ".join([f"{k}: {v}" for k, v in class_count.items()])
-        stats_placeholder.text(stats_text)
-        
-        if frame_count % 3 == 0:
-            continue
-    
+
+        stats_placeholder.text(
+            f"Frame {frame_count}/{total_frames} | {class_count}"
+        )
+
     cap.release()
-    
-    return class_count
+    out.release()
+
+    return output_path, class_count
