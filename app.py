@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.video import process_video_with_preview, detect_video_realtime
+from utils.video import  detect_video_realtime
 import os
 import glob
 import cv2
