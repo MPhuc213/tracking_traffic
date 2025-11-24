@@ -315,11 +315,11 @@ elif option == "🎥 Đếm từ video":
                     output_path, class_count = process_video_with_preview(temp_input, output_path, show_preview,conf=confidence_threshold, iou=iou_threshold,model_path=model_path, use_tracking=use_tracking)
                 else:
                     class_count = detect_video_realtime(
-                        temp_input, output_path,
+                        temp_input,
                         conf=confidence_threshold, iou=iou_threshold,
                         model_path=model_path, use_tracking=use_tracking
                     )
-
+                    output_path = None
                 
                 st.success("✅ Hoàn thành!")
                 
